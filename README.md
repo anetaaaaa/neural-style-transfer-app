@@ -5,6 +5,20 @@ Style” article by L. A. Gatys, S. A. Ecker and M. Bethge. The App implements t
 
 The App allows the user to choose one content image and style image. These images generate a new image, containing the content and style of previously chosen images. The user can also visualize the feature maps that are generated after convolution layers. 
 
+Example App behavior:
+
+<div align="center">
+<img src="app_screen1.jpg" height="1000"/>
+</div>
+
+<div align="center">
+<img src="app_screen2.jpg" height="1000"/>
+</div>
+
+<div align="center">
+<img src="app_layers.jpg" height="1000"/>
+</div>
+
 ## Install
 
 * Clone this repository with this html: 
