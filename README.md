@@ -8,7 +8,7 @@ The App allows the user to choose one content image and style image. These image
 Example App behavior:
 
 <div align="center">
-<img src="app_screen1.png" height="350"/>
+<img src="app_screen1.png" height="300"/>
 </div>
 
 <div align="center">
@@ -16,7 +16,7 @@ Example App behavior:
 </div>
 
 <div align="center">
-<img src="app_layers.png" height="350"/>
+<img src="app_layers.png" height="400"/>
 </div>
 
 ## Install
