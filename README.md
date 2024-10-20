@@ -8,15 +8,15 @@ The App allows the user to choose one content image and style image. These image
 Example App behavior:
 
 <div align="center">
-<img src="app_screen1.jpg" height="1000"/>
+<img src="app_screen1.jpg" height="350"/>
 </div>
 
 <div align="center">
-<img src="app_screen2.jpg" height="1000"/>
+<img src="app_screen2.jpg" height="350"/>
 </div>
 
 <div align="center">
-<img src="app_layers.jpg" height="1000"/>
+<img src="app_layers.jpg" height="350"/>
 </div>
 
 ## Install
