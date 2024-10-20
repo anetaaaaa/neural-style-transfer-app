@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Style Transfer</title>
+    <style>
+        /* General page styles */
+        body {
+            font-family: 'Courier New', Courier, monospace; /* Artsy font */
+            background-image: url('/static/sciana.jpg'); /* Background image */
+            background-size: cover;
+            color: #ff7f50;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            margin-top: 50px;
+            font-size: 5em;
+            color: #ff7f50; /* Soft color for the header */
+        }
+
+        form {
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-top: 20px;
+            text-align: center; /* Center-align content inside the form */
+        }
+
+        label {
+            display: block;
+            margin: 10px 0;
+            font-size: 1.2em;
+        }
+
+        .file-input-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            margin: 0 20px; /* Spacing between the file input and images */
+            color: #45392c;
+            background-color: #333;
+            border: none;
+            border-radius: 5px;
+        }
+
+        input[type="submit"], #visualize-btn {
+            padding: 10px 20px;
+            font-size: 1.2em;
+            color: #ffffff;
+            background-color: #ff7f50;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="submit"]:hover, #visualize-btn:hover {
+            background-color: #ff6347; /* Slightly darker color on hover */
+        }
+
+        /* Style the container for the result and visualization */
+        #result-container {
+            margin-top: 30px;
+            border: 1px solid #ffdfba;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            display: none; /* Hide the container initially */
+            max-width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        /* Thumbnail preview styles */
+        .image-preview {
+            display: inline-block;
+            width: 100px;
+            height: 100px;
+            border: 2px solid #ff7f50;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+
+        /* Loading message style */
+        .loading-message {
+            font-size: 2em;
+            color: #ff7f50;
+            display: none; /* Hidden by default */
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        #visualization-container {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Neural Style Transfer</h1>
+    <form id="upload-form" action="/" method="POST" enctype="multipart/form-data">
+        <div class="file-input-container">
+            <label for="content_image">Upload Content Image:</label>
+            <input type="file" id="content_image" name="content_image" required>
+            <img id="content-preview" class="image-preview" alt="Content Image Preview">
+        </div>
+
+        <div class="file-input-container">
+            <label for="style_image">Upload Style Image:</label>
+            <input type="file" id="style_image" name="style_image" required>
+            <img id="style-preview" class="image-preview" alt="Style Image Preview">
+        </div>
+
+        <input type="submit" value="Submit">
+    </form>
+
+    <!-- Loading message after submitting the form -->
+    <div id="loading-message" class="loading-message">Processing images, please wait...</div>
+
+    <!-- Container for the resulting image -->
+    <div id="result-container">
+        <h2>Resulting Image:</h2>
+        <div id="image-container"></div>
+        <button id="visualize-btn">Visualize Layers</button>
+
+        <!-- Loading message when visualizing layers -->
+        <div id="visualize-loading-message" class="loading-message">Generating visualization, please wait...</div>
+        <div id="visualization-container"></div> <!-- Container for the visualization -->
+    </div>
+
+    <script>
+        // JavaScript to handle image previews
+        document.getElementById('content_image').addEventListener('change', function(event) {
+            const contentPreview = document.getElementById('content-preview');
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    contentPreview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                contentPreview.src = '';
+            }
+        });
+
+        document.getElementById('style_image').addEventListener('change', function(event) {
+            const stylePreview = document.getElementById('style-preview');
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    stylePreview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                stylePreview.src = '';
+            }
+        });
+
+        // JavaScript to handle form submission and display the image
+        document.getElementById('upload-form').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Prevent the form from submitting the traditional way
+
+            // Show the loading message
+            const loadingMessage = document.getElementById('loading-message');
+            loadingMessage.style.display = 'block';
+
+            const formData = new FormData(this);
+
+            const response = await fetch('/', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+
+                const imageElement = document.createElement('img');
+                imageElement.src = 'data:image/jpeg;base64,' + data.image;
+
+                const imageContainer = document.getElementById('image-container');
+                imageContainer.innerHTML = ''; // Clear any previous image
+                imageContainer.appendChild(imageElement);
+
+                const resultContainer = document.getElementById('result-container');
+                resultContainer.style.display = 'block'; // Show the container
+
+                // Hide the loading message
+                loadingMessage.style.display = 'none';
+            }
+        });
+
+        // JavaScript to handle visualization button click
+        document.getElementById('visualize-btn').addEventListener('click', async function() {
+            // Show the loading message
+            const visualizeLoadingMessage = document.getElementById('visualize-loading-message');
+            visualizeLoadingMessage.style.display = 'block';
+
+            const response = await fetch('/visualize');
+
+            if (response.ok) {
+                const visualizationContainer = document.getElementById('visualization-container');
+                visualizationContainer.innerHTML = await response.text(); // Display the plot
+
+                // Hide the loading message
+                visualizeLoadingMessage.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
